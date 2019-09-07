@@ -1,4 +1,4 @@
-module Lib
+module Factom.Rest.Api
     ( someFunc
     ) where
 

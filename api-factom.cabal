@@ -1,8 +1,13 @@
+-- This file has been generated from package.yaml by hpack version 0.27.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 4c686d312f8db6180c055cd4022addae8f9bef36ff3d64e23be50a212961fab9
+
 name:                api-factom
 version:             0.1.0.0
--- synopsis:
--- description:
 homepage:            https://github.com/sigrlami/api-factom#readme
+bug-reports:         https://github.com/sigrlami/api-factom/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Sergey Bushnyak
@@ -10,15 +15,23 @@ maintainer:          sergey.bushnyak@sigrlami.eu
 copyright:           Copyright: (c) 2019 Sergey Bushnyak
 category:            Web
 build-type:          Simple
-extra-source-files:  README.md
-cabal-version:       >=1.10
+cabal-version:       >= 1.10
 
-library
-  hs-source-dirs:      src
-  exposed-modules:     Lib
-  build-depends:       base >= 4.7 && < 5
-  default-language:    Haskell2010
+extra-source-files:
+    README.md
 
 source-repository head
-  type:     git
+  type: git
   location: https://github.com/sigrlami/api-factom
+
+library
+  hs-source-dirs:
+      src
+  exposed-modules:
+      Lib
+  other-modules:
+      Factom.Rest.Api
+      Paths_api_factom
+  build-depends:
+      base >=4.7 && <5
+  default-language: Haskell2010
