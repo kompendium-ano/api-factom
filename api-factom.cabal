@@ -1,8 +1,10 @@
--- This file has been generated from package.yaml by hpack version 0.27.0.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4c686d312f8db6180c055cd4022addae8f9bef36ff3d64e23be50a212961fab9
+-- hash: 172d077c0365940b3fc38d037888fa7fb994869502570db5c13adde63f9e9aee
 
 name:                api-factom
 version:             0.1.0.0
@@ -15,8 +17,6 @@ maintainer:          sergey.bushnyak@sigrlami.eu
 copyright:           Copyright: (c) 2019 Sergey Bushnyak
 category:            Web
 build-type:          Simple
-cabal-version:       >= 1.10
-
 extra-source-files:
     README.md
 
@@ -28,10 +28,19 @@ library
   hs-source-dirs:
       src
   exposed-modules:
-      Lib
-  other-modules:
       Factom.Rest.Api
+  other-modules:
       Paths_api_factom
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
+    , http-client
+    , http-client-tls
+    , http-conduit
+    , network
+    , servant
+    , servant-client
+    , text
+    , time
+    , transformers
   default-language: Haskell2010

@@ -35,34 +35,41 @@ import           Factom.RPC.Utils
 
 --------------------------------------------------------------------------------
 
-endpoint = "http://localhost:8088/v2"
+endpoint = "http://localhost:8081/v1"
 
 type FactomAPI =
-       "entry"
-    :> ReqBody '[JSON] ApiRequest
-    :> Post '[JSON] (ApiResponse Entry)
+       "user"
+    :> Header "Authorization Bearer" T.Text
+    :> Get '[JSON] User
 
-  -- POST /entry-ack
-  :<|> "entry-block"
-    :> Post '[JSON] (ApiResponse EntryBlock)
+  :<|> "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> Get '[JSON] (ApiResponse [Chain])
 
-  -- POST /entry-credit-balance
-  :<|> "entry-credit-balance"
-    :> Post '[JSON] (ApiResponse EntryCreditBalance)
+  :<|> "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> Post '[JSON] (ApiResponse Chain)
+
+  :<|> "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> Capture "chainid" T.Text
+    :> Post '[JSON] (ApiResponse Chain)
 
 factomAPI :: Proxy FactomAPI
 factomAPI = Proxy
 
--- Derive call functions for the api
-getEntry :: ApiRequest -> ClientM (ApiResponse Entry)
-getEntryBlock :: ClientM (ApiResponse EntryBlock)
-getEntryCreditBalance :: ClientM (ApiResponse EntryCreditBalance)
-(     getEntry
- :<|> getEntryBlock
- :<|> getEntryCreditBalance ) = client factomAPI
+getUser :: Maybe T.Text -> ClientM User
+getChains :: Maybe T.Text -> ClientM (ApiResponse [Chain])
+createChain :: Maybe T.Text -> ClientM (ApiResponse Chain)
+getChain :: Maybe T.Text -> ClientM (ApiResponse Chain)
+(     getUser
+ :<|> getChains
+ :<|> createChain
+ :<|> getChain ) = client factomAPI
 
 --------------------------------------------------------------------------------
 
-getEntry' = undefined
-getEntryBlock' = undefined
-getEntryCreditBalance' = undefined
+getUser' = undefined
+getChains' = undefined
+createChain' = undefined
+getChain' = undefined
