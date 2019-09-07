@@ -9,7 +9,17 @@ github: sigrlami/api-factom
 extra-source-files:
 - README.md
 dependencies:
-- base >=4.7 && <5
+  - base >=4.7 && <5
+  - aeson
+  - text
+  - time
+  - http-conduit
+  - servant
+  - servant-client
+  - http-client
+  - http-client-tls
+  - network
+  - transformers
 library:
   source-dirs: src
   exposed-modules:
