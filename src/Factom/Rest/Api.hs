@@ -8,7 +8,7 @@
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
 
-module Factom.RPC.Api where
+module Factom.Rest.Api where
 
 import           Control.Applicative
 import           Control.Monad
@@ -30,8 +30,8 @@ import qualified Network.HTTP.Simple        as S
 import           Servant.API
 import           Servant.Client
 
-import           Factom.RPC.Types
-import           Factom.RPC.Utils
+import           Factom.Rest.Types
+import           Factom.Rest.Utils
 
 --------------------------------------------------------------------------------
 
@@ -54,6 +54,8 @@ type FactomAPI =
     :> Header "Authorization Bearer" T.Text
     :> Capture "chainid" T.Text
     :> Post '[JSON] (ApiResponse Chain)
+
+  :<|> ""
 
 factomAPI :: Proxy FactomAPI
 factomAPI = Proxy

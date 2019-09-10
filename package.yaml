@@ -20,6 +20,7 @@ dependencies:
   - http-client-tls
   - network
   - transformers
+  - bytestring
 library:
   source-dirs: src
   exposed-modules:
