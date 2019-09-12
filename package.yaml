@@ -21,6 +21,7 @@ dependencies:
   - network
   - transformers
   - bytestring
+  - containers
 library:
   source-dirs: src
   exposed-modules:

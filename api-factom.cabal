@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 25fa3d200fde32cd6691f0887cbd9c3b6fb5ef5af6cfdef249cdb823b8827217
+-- hash: a70a21a4ad08f2aca9c5eedd692710db9762a590b20cb0543c5a2ada672d1a8e
 
 name:                api-factom
 version:             0.1.0.0
@@ -37,6 +37,7 @@ library
       aeson
     , base >=4.7 && <5
     , bytestring
+    , containers
     , http-client
     , http-client-tls
     , http-conduit
