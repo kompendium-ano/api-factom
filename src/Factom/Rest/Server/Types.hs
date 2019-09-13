@@ -1,50 +1,58 @@
-{-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# OPTIONS_GHC -fno-warn-unused-binds   #-}
-{-# OPTIONS_GHC -fno-warn-unused-imports #-}
+{-# OPTIONS_GHC -fno-warn-unused-binds -fno-warn-unused-imports #-}
 
-module Factom.Rest.Types where
+module FactomOpen.Types (
+  ApiErrorResponse (..),
+  ApiSuccessResponse (..),
+  ApiSuccessResponsePagination (..),
+  ) where
 
-import           Data.Aeson       (FromJSON (..), ToJSON (..), Value,
-                                   genericParseJSON, genericToJSON)
-import           Data.Aeson.Types (Options (..), defaultOptions)
-import           Data.Function    ((&))
-import           Data.List        (stripPrefix)
-import qualified Data.Map         as Map
-import           Data.Maybe       (fromMaybe)
-import           Data.Text        (Text)
-import qualified Data.Text        as T
-import           GHC.Generics     (Generic)
+import Data.List (stripPrefix)
+import Data.Maybe (fromMaybe)
+import Data.Aeson (Value, FromJSON(..), ToJSON(..), genericToJSON, genericParseJSON)
+import Data.Aeson.Types (Options(..), defaultOptions)
+import Data.Text (Text)
+import qualified Data.Text as T
+import qualified Data.Map as Map
+import GHC.Generics (Generic)
+import Data.Function ((&))
 
---------------------------------------------------------------------------------
 
--- |
+-- | 
 data ApiErrorResponse = ApiErrorResponse
-  { apiErrorResponseCode   :: Int  -- ^
-  , apiErrorResponseError  :: Text -- ^
-  , apiErrorResponseResult :: Bool -- ^
+  { apiErrorResponseCode :: Int -- ^ 
+  , apiErrorResponseError :: Text -- ^ 
+  , apiErrorResponseResult :: Bool -- ^ 
   } deriving (Show, Eq, Generic)
 
 instance FromJSON ApiErrorResponse where
-  parseJSON =
-    genericParseJSON (removeFieldLabelPrefix True "apiErrorResponse")
-
+  parseJSON = genericParseJSON (removeFieldLabelPrefix True "apiErrorResponse")
 instance ToJSON ApiErrorResponse where
-  toJSON =
-    genericToJSON (removeFieldLabelPrefix False "apiErrorResponse")
+  toJSON = genericToJSON (removeFieldLabelPrefix False "apiErrorResponse")
 
--- |
+-- | 
 data ApiSuccessResponse = ApiSuccessResponse
-  { apiSuccessResponseResult :: Value -- ^
+  { apiSuccessResponseResult :: Value -- ^ 
   } deriving (Show, Eq, Generic)
 
 instance FromJSON ApiSuccessResponse where
-  parseJSON =
-    genericParseJSON (removeFieldLabelPrefix True "apiSuccessResponse")
-
+  parseJSON = genericParseJSON (removeFieldLabelPrefix True "apiSuccessResponse")
 instance ToJSON ApiSuccessResponse where
-  toJSON =
-    genericToJSON (removeFieldLabelPrefix False "apiSuccessResponse")
+  toJSON = genericToJSON (removeFieldLabelPrefix False "apiSuccessResponse")
+
+-- | 
+data ApiSuccessResponsePagination = ApiSuccessResponsePagination
+  { apiSuccessResponsePaginationLimit :: Int -- ^ 
+  , apiSuccessResponsePaginationResult :: Value -- ^ 
+  , apiSuccessResponsePaginationStart :: Int -- ^ 
+  , apiSuccessResponsePaginationTotal :: Int -- ^ 
+  } deriving (Show, Eq, Generic)
+
+instance FromJSON ApiSuccessResponsePagination where
+  parseJSON = genericParseJSON (removeFieldLabelPrefix True "apiSuccessResponsePagination")
+instance ToJSON ApiSuccessResponsePagination where
+  toJSON = genericToJSON (removeFieldLabelPrefix False "apiSuccessResponsePagination")
 
 -- Remove a field label prefix during JSON parsing.
 -- Also perform any replacements for special characters.
