@@ -1,11 +1,11 @@
-name: api-factom
+name: api-factom-client
 version: '0.1.0.0'
 category: Web
 author: Sergey Bushnyak
 maintainer: sergey.bushnyak@sigrlami.eu
 copyright: ! 'Copyright: (c) 2019 Sergey Bushnyak'
-license: BSD3
-github: sigrlami/api-factom
+license: MIT
+github: kompendium-llc/api-factom
 extra-source-files:
 - README.md
 dependencies:
@@ -25,4 +25,4 @@ dependencies:
 library:
   source-dirs: src
   exposed-modules:
-  - Factom.Rest.Api
+  - Factom.Rest.Client.Api

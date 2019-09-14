@@ -4,13 +4,13 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a70a21a4ad08f2aca9c5eedd692710db9762a590b20cb0543c5a2ada672d1a8e
+-- hash: 6093c272e0861d9e8a7b286c3905571658562081294b930c36675057c0c3b2ec
 
-name:                api-factom
+name:                api-factom-client
 version:             0.1.0.0
-homepage:            https://github.com/sigrlami/api-factom#readme
-bug-reports:         https://github.com/sigrlami/api-factom/issues
-license:             BSD3
+homepage:            https://github.com/kompendium-llc/api-factom#readme
+bug-reports:         https://github.com/kompendium-llc/api-factom/issues
+license:             MIT
 license-file:        LICENSE
 author:              Sergey Bushnyak
 maintainer:          sergey.bushnyak@sigrlami.eu
@@ -22,17 +22,19 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/sigrlami/api-factom
+  location: https://github.com/kompendium-llc/api-factom
 
 library
   hs-source-dirs:
       src
   exposed-modules:
-      Factom.Rest.Api
+      Factom.Rest.Client.Api
   other-modules:
+      Factom.Rest.Client.Utils
+      Factom.Rest.Server.API
+      Factom.Rest.Server.Types
       Factom.Rest.Types
-      Factom.Rest.Utils
-      Paths_api_factom
+      Paths_api_factom_client
   build-depends:
       aeson
     , base >=4.7 && <5

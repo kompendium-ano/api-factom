@@ -1,0 +1,52 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 65181288e974e389162074169e5abc8efb7b91444a3d18e89a2bd65e0bbd2cd5
+
+name:                api-factom
+version:             0.1.0.0
+homepage:            https://github.com/sigrlami/api-factom#readme
+bug-reports:         https://github.com/sigrlami/api-factom/issues
+license:             BSD3
+license-file:        LICENSE
+author:              Sergey Bushnyak
+maintainer:          sergey.bushnyak@sigrlami.eu
+copyright:           Copyright: (c) 2019 Sergey Bushnyak
+category:            Web
+build-type:          Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/sigrlami/api-factom
+
+library
+  hs-source-dirs:
+      src
+  exposed-modules:
+      Factom.Rest.Client.Api
+  other-modules:
+      Factom.Rest.Client.Utils
+      Factom.Rest.Server.API
+      Factom.Rest.Server.Types
+      Factom.Rest.Types
+      Paths_api_factom
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , http-client
+    , http-client-tls
+    , http-conduit
+    , network
+    , servant
+    , servant-client
+    , text
+    , time
+    , transformers
+  default-language: Haskell2010

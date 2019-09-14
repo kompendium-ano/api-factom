@@ -8,7 +8,7 @@
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
 
-module Factom.Rest.Api where
+module Factom.Rest.Client.Api where
 
 import           Control.Applicative
 import           Control.Monad
