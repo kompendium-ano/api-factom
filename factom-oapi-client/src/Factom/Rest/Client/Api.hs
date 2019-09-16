@@ -30,8 +30,8 @@ import qualified Network.HTTP.Simple        as S
 import           Servant.API
 import           Servant.Client
 
+import           Factom.Rest.Client.Utils
 import           Factom.Rest.Types
-import           Factom.Rest.Utils
 
 --------------------------------------------------------------------------------
 

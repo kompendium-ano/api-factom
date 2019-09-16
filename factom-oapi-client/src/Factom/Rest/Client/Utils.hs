@@ -1,4 +1,4 @@
-module Factom.Rest.Utils where
+module Factom.Rest.Client.Utils where
 
 import           Data.List  (stripPrefix)
 import qualified Data.Map   as Map
