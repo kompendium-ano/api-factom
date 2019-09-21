@@ -1,19 +1,17 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE DeriveTraversable          #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE RecordWildCards            #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE TypeOperators              #-}
 {-# OPTIONS_GHC
 -fno-warn-unused-binds -fno-warn-unused-imports -fcontext-stack=328 #-}
 
 module FactomOpen.API
-  -- * Client and Server
   ( ServerConfig(..)
   , FactomOpenBackend
   , createFactomOpenClient
@@ -25,30 +23,33 @@ module FactomOpen.API
   , FactomOpenAPI
   ) where
 
-import FactomOpen.Types
+import           Control.Monad.Except      (ExceptT)
+import           Control.Monad.IO.Class
+import           Data.Aeson                (Value)
+import           Data.Coerce               (coerce)
+import           Data.Function             ((&))
+import qualified Data.Map                  as Map
+import           Data.Monoid               ((<>))
+import           Data.Proxy                (Proxy (..))
+import           Data.Text                 (Text)
+import qualified Data.Text                 as T
+import           GHC.Exts                  (IsString (..))
+import           GHC.Generics              (Generic)
+import           Network.HTTP.Client       (Manager, defaultManagerSettings,
+                                            newManager)
+import           Network.HTTP.Types.Method (methodOptions)
+import qualified Network.Wai.Handler.Warp  as Warp
+import           Servant                   (ServantErr, serve)
+import           Servant.API
+import           Servant.API.Verbs         (StdMethod (..), Verb)
+import           Servant.Client            (Scheme (Http), ServantError, client)
+import           Servant.Common.BaseUrl    (BaseUrl (..))
+import           Web.HttpApiData
 
-import Control.Monad.Except (ExceptT)
-import Control.Monad.IO.Class
-import Data.Aeson (Value)
-import Data.Coerce (coerce)
-import Data.Function ((&))
-import qualified Data.Map as Map
-import Data.Monoid ((<>))
-import Data.Proxy (Proxy(..))
-import Data.Text (Text)
-import qualified Data.Text as T
-import GHC.Exts (IsString(..))
-import GHC.Generics (Generic)
-import Network.HTTP.Client (Manager, defaultManagerSettings, newManager)
-import Network.HTTP.Types.Method (methodOptions)
-import qualified Network.Wai.Handler.Warp as Warp
-import Servant (ServantErr, serve)
-import Servant.API
-import Servant.API.Verbs (StdMethod(..), Verb)
-import Servant.Client (Scheme(Http), ServantError, client)
-import Servant.Common.BaseUrl (BaseUrl(..))
-import Web.HttpApiData
+-- import local types
+import           Factom.Rest.Types
 
+-----------------------------------------------------------------------------------
 
 
 data FormChainsChainIdEntriesSearchPost = FormChainsChainIdEntriesSearchPost
@@ -63,7 +64,7 @@ instance ToFormUrlEncoded FormChainsChainIdEntriesSearchPost where
     [ ("extIds", toQueryParam $ chainsChainIdEntriesSearchPostExtIds value)
     ]
 data FormChainsPost = FormChainsPost
-  { chainsPostExtIds :: [Text]
+  { chainsPostExtIds  :: [Text]
   , chainsPostContent :: Text
   } deriving (Show, Eq, Generic)
 
@@ -88,7 +89,7 @@ instance ToFormUrlEncoded FormChainsSearchPost where
     ]
 data FormEntriesPost = FormEntriesPost
   { entriesPostChainId :: Text
-  , entriesPostExtIds :: [Text]
+  , entriesPostExtIds  :: [Text]
   , entriesPostContent :: Text
   } deriving (Show, Eq, Generic)
 
@@ -120,7 +121,7 @@ lookupEither key assocs =
     Nothing -> Left $ "Could not find parameter " <> (T.unpack key) <> " in form data"
     Just value ->
       case parseQueryParam value of
-        Left result -> Left $ T.unpack result
+        Left result  -> Left $ T.unpack result
         Right result -> Right $ result
 
 -- | Servant type-level API, generated from the Swagger spec for FactomOpen.
@@ -194,7 +195,6 @@ instance ToHttpApiData a => ToHttpApiData (QueryList 'MultiParamArray a) where
 formatSeparatedQueryList :: ToHttpApiData a => Char ->  QueryList p a -> Text
 formatSeparatedQueryList char = T.intercalate (T.singleton char) . map toQueryParam . fromQueryList
 
-
 -- | Backend for FactomOpen.
 -- The backend can be used both for the client and the server. The client generated from the FactomOpen Swagger spec
 -- is a backend that executes actions by sending HTTP requests (see @createFactomOpenClient@). Alternatively, provided
@@ -215,51 +215,6 @@ data FactomOpenBackend m = FactomOpenBackend
   , userGet :: m ApiSuccessResponse{- ^ Get API user info -}
   }
 
-newtype FactomOpenClient a = FactomOpenClient
-  { runClient :: Manager -> BaseUrl -> ExceptT ServantError IO a
-  } deriving Functor
-
-instance Applicative FactomOpenClient where
-  pure x = FactomOpenClient (\_ _ -> pure x)
-  (FactomOpenClient f) <*> (FactomOpenClient x) =
-    FactomOpenClient (\manager url -> f manager url <*> x manager url)
-
-instance Monad FactomOpenClient where
-  (FactomOpenClient a) >>= f =
-    FactomOpenClient (\manager url -> do
-      value <- a manager url
-      runClient (f value) manager url)
-
-instance MonadIO FactomOpenClient where
-  liftIO io = FactomOpenClient (\_ _ -> liftIO io)
-
-createFactomOpenClient :: FactomOpenBackend FactomOpenClient
-createFactomOpenClient = FactomOpenBackend{..}
-  where
-    ((coerce -> chainsChainIdEntriesFirstGet) :<|>
-     (coerce -> chainsChainIdEntriesGet) :<|>
-     (coerce -> chainsChainIdEntriesLastGet) :<|>
-     (coerce -> chainsChainIdEntriesSearchPost) :<|>
-     (coerce -> chainsChainIdGet) :<|>
-     (coerce -> chainsGet) :<|>
-     (coerce -> chainsPost) :<|>
-     (coerce -> chainsSearchPost) :<|>
-     (coerce -> entriesEntryHashGet) :<|>
-     (coerce -> entriesPost) :<|>
-     (coerce -> factomdMethodPost) :<|>
-     (coerce -> rootGet) :<|>
-     (coerce -> userGet)) = client (Proxy :: Proxy FactomOpenAPI)
-
--- | Run requests in the FactomOpenClient monad.
-runFactomOpenClient :: ServerConfig -> FactomOpenClient a -> ExceptT ServantError IO a
-runFactomOpenClient clientConfig cl = do
-  manager <- liftIO $ newManager defaultManagerSettings
-  runFactomOpenClientWithManager manager clientConfig cl
-
--- | Run requests in the FactomOpenClient monad using a custom manager.
-runFactomOpenClientWithManager :: Manager -> ServerConfig -> FactomOpenClient a -> ExceptT ServantError IO a
-runFactomOpenClientWithManager manager clientConfig cl =
-  runClient cl manager $ BaseUrl Http (configHost clientConfig) (configPort clientConfig) ""
 
 -- | Run the FactomOpen server at the provided host and port.
 runFactomOpenServer :: MonadIO m => ServerConfig -> FactomOpenBackend (ExceptT ServantErr IO)  -> m ()
