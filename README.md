@@ -12,3 +12,5 @@ Uses [OpenApi](https://docs.openapi.de-facto.pro/api-sdks) description from De F
 - This system extends OpenApi specification from De Facto with addition of multiple endpoints. Our goal to have one-to-one mapping with RPC client which allow easier integrations with web-applications which usually follor REST pattern.
 
 - We use Haskell because of brilliant type system that provide additional test layer by reducing specific classes of bugs that typial for other language. Type inference allows to detect incoherences at early stages and functional programming approaches gives ability to work easily with null-values and conditional responses..
+
+- As an RPC connector system uses Haskell RPC client - [api-rpc-factom](https://github.com/kompendium-llc/api-rpc-factom) which also uses types for additional correctness.
