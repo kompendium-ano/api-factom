@@ -1,4 +1,4 @@
-name: api-factom
+name: api-factom-server
 version: '0.1.0.0'
 category: Web
 author: Sergey Bushnyak
@@ -15,14 +15,23 @@ dependencies:
   - time
   - http-conduit
   - servant
+  - servant-server
   - servant-client
+  - servant-swagger
   - http-client
+  - mtl
+  - wai
+  - wai-extra
+  - http-types
+  - http-api-data
   - http-client-tls
   - network
   - transformers
   - bytestring
   - containers
+  - warp
+  - api-factom-types
 library:
   source-dirs: src
   exposed-modules:
-  - Factom.Rest.Client.Api
+  - Factom.Rest.Server.API

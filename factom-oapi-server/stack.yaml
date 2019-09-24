@@ -2,6 +2,7 @@ resolver: lts-14.4
 
 packages:
 - .
+- ../factom-oapi-types
 
 extra-deps:
 - git: 'git@github.com:kompendium-llc/api-rpc-factom'
