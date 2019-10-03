@@ -5,7 +5,7 @@
 {-# LANGUAGE TemplateHaskell     #-}
 {-# LANGUAGE TypeOperators       #-}
 
-module Factom.Rest.Server.Version where
+module Factom.Rest.Server.Types.Version where
 
 import           Control.Applicative
 import           Control.Monad                   (forM_, join, mzero)
