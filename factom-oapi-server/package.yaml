@@ -30,6 +30,7 @@ dependencies:
   - bytestring
   - containers
   - warp
+  - api-rpc-factom
   - api-factom-types
 library:
   source-dirs: src

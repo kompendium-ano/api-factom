@@ -53,6 +53,9 @@ type APIv1Protected =
   :<|> "chains"
     :> Post '[JSON] ChainResult
 
+  -- :<|>
+
+
 type APIv1UnProtected =
   "ping"
    :> Get '[JSON] Bool
@@ -75,7 +78,6 @@ realmProtectedV1 cc (Authenticated u) =
        getVersion
   :<|> getUser
   :<|> createNewChain
-
 
 realmUnProtectedV1 :: AppConfig
                    -> CookieSettings
@@ -107,3 +109,8 @@ restAPIvCombined :: Proxy (APIvCombined '[JWT])
 restAPIvCombined = Proxy
 
 --------------------------------------------------------------------------------
+
+getVersion = undefined
+getUser = undefined
+createNewChain = undefined
+servicePing = undefined
