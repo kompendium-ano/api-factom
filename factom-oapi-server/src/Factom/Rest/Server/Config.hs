@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Config
+module Factom.Rest.Server.Config
   ( AppConfig(..)
   , ConnectConfig(..)
   , MetaConfig(..)

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Main where
+module Factom.Rest.Server.Main where
 
 import           Control.Applicative
 import           Control.Concurrent
