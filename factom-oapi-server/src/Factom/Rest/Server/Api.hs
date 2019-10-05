@@ -40,6 +40,12 @@ import           Servant.Server                      hiding (BadPassword,
                                                       NoSuchUser)
 import           Servant.Swagger
 
+-- import local modules
+import           Factom.Rest.Server.Config
+import           Factom.Rest.Server.Types.Chain
+import           Factom.Rest.Server.Types.User
+import           Factom.Rest.Server.Types.Version
+
 --------------------------------------------------------------------------------
 
 

@@ -13,22 +13,49 @@ module Factom.Rest.Server.Config
   ) where
 
 import           Data.Aeson
-import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Char8                      as BS
 import           Data.List
 import           Data.List.Split
-import           Data.Maybe            (catMaybes, fromMaybe)
-import qualified Data.Text             as T
+import           Data.Maybe                                 (catMaybes,
+                                                             fromMaybe)
+import qualified Data.Text                                  as T
 import           Data.Typeable
 import           Data.UUID
 import           Data.Word
-import qualified Data.Yaml             as Y
+import qualified Data.Yaml                                  as Y
+import           Database.PostgreSQL.Simple
+import           Database.PostgreSQL.Simple.FromField
+import           Database.PostgreSQL.Simple.FromRow
+import           Database.PostgreSQL.Simple.ToField
+import           Database.PostgreSQL.Simple.ToRow
+import qualified Database.PostgreSQL.Simple.TypeInfo.Static as TI
 import           GHC.Generics
-import           System.Environment    (getEnv, lookupEnv)
+import           GHC.Generics
+import           System.Environment                         (getEnv, lookupEnv)
 import           System.IO.Unsafe
 
-import           Common.Types.Db
+--------------------------------------------------------------------------------
 
--------------------------------------------------------------------------------
+data ConnectConfig = ConnectConfig
+  { host :: String
+  , port :: String
+  , dbs  :: String
+  , user :: String
+  , pass :: String
+  } deriving (Generic, Eq, Read, Show, Typeable, ToJSON)
+
+mkConnInfo :: ConnectConfig -- ^ Internal configuration representation
+           -> ConnectInfo   -- ^ Representation used by Postgresql.Simple
+mkConnInfo config =
+  defaultConnectInfo
+  { connectHost     = host config
+  , connectPort     = fromInteger $ read $ port config
+  , connectDatabase = dbs  config
+  , connectUser     = user config
+  , connectPassword = pass config
+  }
+
+--------------------------------------------------------------------------------
 
 -- | Top level structure for storing config
 --
@@ -46,7 +73,7 @@ instance FromJSON AppConfig where
     mt <- o .: "meta"
     hh <- o .: "host"
     ah <- o .: "host-api"
-    return $ AppConfig db lg mt hh ah
+    return $ AppConfig db mt hh ah
 
 instance FromJSON ConnectConfig where
   parseJSON = withObject "database" $ \o -> do
@@ -55,7 +82,7 @@ instance FromJSON ConnectConfig where
     dd <- o .: "db"
     us <- o .: "user"
     ps <- o .: "password"
-    return $ ConnectConfig hs pr dd us psx
+    return $ ConnectConfig hs pr dd us ps
 
 -- | Additional structure for specific meta values
 --
