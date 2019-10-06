@@ -34,8 +34,14 @@ import           Factom.Rest.Client.Utils
 import           Factom.Rest.Types
 
 --------------------------------------------------------------------------------
+-- Configuration related
 
 endpoint = "http://localhost:8081/v1"
+
+--------------------------------------------------------------------------------
+-- Minimal API
+--   methods according to current DeFacto's specification
+--   https://docs.openapi.de-facto.pro/
 
 type FactomAPIMinimal =
        "user"
@@ -94,13 +100,14 @@ type FactomAPIMinimal =
     :> Post '[JSON] (Either String Chain)
 
 
-
 factomAPI :: Proxy FactomAPIMinimal
 factomAPI = Proxy
 
 --------------------------------------------------------------------------------
+-- Extended API
+--    methods beyond current DeFacto specification
+--    implemented in Haskell OpenApi Server part
 
--- methods beyond current DeFacto specification
 type FactomAPIExtended =
 
    -- entries from to
@@ -110,23 +117,34 @@ type FactomAPIExtended =
     :> "entries"
     :> Capture "from" Int
     :> Capture "to"   Int
-    :> Get '[JSON] (Either String  Entry)
+    :> Get '[JSON] (Either String [Entry])
 
   -- user chains from to
   :<|> "chains"
     :> Header "Authorization Bearer" T.Text
-    :> Capture "chainid" T.Text
     :> Capture "from" Int
     :> Capture "to"   Int
-    :> Get '[JSON] (Either String  Entry)
+    :> Get '[JSON] (Either String [Chain])
 
+factomExtendedAPI :: Proxy MonobankCorporateAPI
+factomExtendedAPI = Proxy
+
+getEntriesRange :: Maybe T.Text -> T.Text -> Int -> Int -> ClientM (Either String  [Chain])
+getChainsRange  :: Maybe T.Text -> Int -> Int -> ClientM (Either String  [Chain])
+(     getEntries
+ :<|> getChainsRange) = client factomExtendedAPI
 
 --------------------------------------------------------------------------------
 
 getUser :: Maybe T.Text -> ClientM User
 getChains :: Maybe T.Text -> ClientM (Either String  [Chain])
 createChain :: Maybe T.Text -> ClientM (Either String  Chain)
-getChain :: Maybe T.Text -> ClientM (Either String  Chain)
+getChainById :: Maybe T.Text -> ClientM (Either String  Chain)
+getChainEntries :: Maybe T.Text -> ClientM (Either String  Chain)
+getChainEntryFirst :: Maybe T.Text -> ClientM (Either String  Chain)
+getChainEntryLast :: Maybe T.Text -> ClientM (Either String  Chain)
+searchChainsByExternalIds :: Maybe T.Text -> ClientM (Either String  Chain)
+  searchEntriesChainByExternalIds
 (     getUser
  :<|> getUserChains
  :<|> createChain
@@ -135,13 +153,26 @@ getChain :: Maybe T.Text -> ClientM (Either String  Chain)
  :<|> getChainEntryFirst
  :<|> getChainEntryLast
  :<|> searchChainsByExternalIds
- :<|> searchEntriesChainByExternalIds
-  ) = client factomAPI
+ :<|> searchEntriesChainByExternalIds ) = client factomAPIMinimal
 
 --------------------------------------------------------------------------------
 
--- getUser
-getUser' = undefined
+getUser' :: IO (Either ServantError User)
+getUser' = do
+  mgr <- newManager tlsManagerSettings
+  let env = ClientEnv mgr host Nothing
+  runClientM getUser env
+  where
+    host = (BaseUrl Https endpoint 443 "")
+
 getUserChains' = undefined
 createChain' = undefined
-getChain' = undefined
+getChainById' = undefined
+getChainEntries' = undefined
+getChainEntryFirst' = undefined
+getChainEntryLast' = undefined
+searchChainsByExternalIds' = undefined
+searchEntriesChainByExternalIds' = undefined
+
+getEntries' = undefined
+getChainsRange' = undefined
