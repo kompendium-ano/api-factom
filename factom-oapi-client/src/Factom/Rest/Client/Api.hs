@@ -37,41 +37,111 @@ import           Factom.Rest.Types
 
 endpoint = "http://localhost:8081/v1"
 
-type FactomAPI =
+type FactomAPIMinimal =
        "user"
     :> Header "Authorization Bearer" T.Text
     :> Get '[JSON] User
 
   :<|> "chains"
     :> Header "Authorization Bearer" T.Text
-    :> Get '[JSON] (ApiResponse [Chain])
+    :> Get '[JSON] (Either String [Chain])
 
   :<|> "chains"
     :> Header "Authorization Bearer" T.Text
-    :> Post '[JSON] (ApiResponse Chain)
+    :> Post '[JSON] (Either String [Chain])
 
   :<|> "chains"
     :> Header "Authorization Bearer" T.Text
     :> Capture "chainid" T.Text
-    :> Post '[JSON] (ApiResponse Chain)
+    :> Post '[JSON] (Either String Chain)
 
-  :<|> ""
+  :<|> "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> Capture "chainid" T.Text
+    :> "entries"
+    :> Post '[JSON] (Either String [Entry])
 
-factomAPI :: Proxy FactomAPI
+  :<|> "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> Capture "chainid" T.Text
+    :> "entries"
+    :> Get '[JSON] (Either String [Entry])
+
+  :<|> "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> Capture "chainid" T.Text
+    :> "entries"
+    :> "first"
+    :> Get '[JSON] (Either String  Entry)
+
+  :<|> "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> Capture "chainid" T.Text
+    :> "entries"
+    :> "last"
+    :> Get '[JSON] (Either String  Entry)
+
+  :<|> "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> "search"
+    :> Post '[JSON] (Either String Chain)
+
+  :<|> "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> Capture "chainid" T.Text
+    :> "entries"
+    :> "searh"
+    :> Post '[JSON] (Either String Chain)
+
+
+
+factomAPI :: Proxy FactomAPIMinimal
 factomAPI = Proxy
-
-getUser :: Maybe T.Text -> ClientM User
-getChains :: Maybe T.Text -> ClientM (ApiResponse [Chain])
-createChain :: Maybe T.Text -> ClientM (ApiResponse Chain)
-getChain :: Maybe T.Text -> ClientM (ApiResponse Chain)
-(     getUser
- :<|> getChains
- :<|> createChain
- :<|> getChain ) = client factomAPI
 
 --------------------------------------------------------------------------------
 
+-- methods beyond current DeFacto specification
+type FactomAPIExtended =
+
+   -- entries from to
+      "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> Capture "chainid" T.Text
+    :> "entries"
+    :> Capture "from" Int
+    :> Capture "to"   Int
+    :> Get '[JSON] (Either String  Entry)
+
+  -- user chains from to
+  :<|> "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> Capture "chainid" T.Text
+    :> Capture "from" Int
+    :> Capture "to"   Int
+    :> Get '[JSON] (Either String  Entry)
+
+
+--------------------------------------------------------------------------------
+
+getUser :: Maybe T.Text -> ClientM User
+getChains :: Maybe T.Text -> ClientM (Either String  [Chain])
+createChain :: Maybe T.Text -> ClientM (Either String  Chain)
+getChain :: Maybe T.Text -> ClientM (Either String  Chain)
+(     getUser
+ :<|> getUserChains
+ :<|> createChain
+ :<|> getChainById
+ :<|> getChainEntries
+ :<|> getChainEntryFirst
+ :<|> getChainEntryLast
+ :<|> searchChainsByExternalIds
+ :<|> searchEntriesChainByExternalIds
+  ) = client factomAPI
+
+--------------------------------------------------------------------------------
+
+-- getUser
 getUser' = undefined
-getChains' = undefined
+getUserChains' = undefined
 createChain' = undefined
 getChain' = undefined
