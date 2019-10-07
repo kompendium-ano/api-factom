@@ -14,29 +14,31 @@ import           Control.Applicative
 import           Control.Monad
 import           Control.Monad.IO.Class
 import           Data.Aeson
-import qualified Data.ByteString.Char8      as B
-import qualified Data.ByteString.Lazy.Char8 as BL
+import qualified Data.ByteString.Char8          as B
+import qualified Data.ByteString.Lazy.Char8     as BL
 import           Data.Monoid
 import           Data.Proxy
-import qualified Data.Text                  as T
+import qualified Data.Text                      as T
 import           Data.Time
 import           Data.Time.Clock.POSIX
 import           GHC.Generics
-import           Network.HTTP.Client        (Manager, newManager)
-import qualified Network.HTTP.Client        as C
-import           Network.HTTP.Client.TLS    (tlsManagerSettings)
-import           Network.HTTP.Conduit       (simpleHttp)
-import qualified Network.HTTP.Simple        as S
+import           Network.HTTP.Client            (Manager, newManager)
+import qualified Network.HTTP.Client            as C
+import           Network.HTTP.Client.TLS        (tlsManagerSettings)
+import           Network.HTTP.Conduit           (simpleHttp)
+import qualified Network.HTTP.Simple            as S
 import           Servant.API
 import           Servant.Client
 
+import           Factom.Rest.Client.Types
+import           Factom.Rest.Client.Types.Chain
 import           Factom.Rest.Client.Utils
-import           Factom.Rest.Types
 
 --------------------------------------------------------------------------------
 -- Configuration related
 
 endpoint = "http://localhost:8081/v1"
+endpointRemote = "https://api.factom.kelecorix.com"
 
 --------------------------------------------------------------------------------
 -- Minimal API
