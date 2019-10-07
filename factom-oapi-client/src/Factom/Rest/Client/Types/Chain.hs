@@ -5,7 +5,7 @@
 {-# LANGUAGE TemplateHaskell     #-}
 {-# LANGUAGE TypeOperators       #-}
 
-module Chain where
+module Factom.Rest.Client.Types.Chain where
 
 import           Control.Applicative
 import           Control.Monad                   (forM_, join, mzero)

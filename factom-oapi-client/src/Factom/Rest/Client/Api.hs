@@ -32,6 +32,8 @@ import           Servant.Client
 
 import           Factom.Rest.Client.Types
 import           Factom.Rest.Client.Types.Chain
+import           Factom.Rest.Client.Types.Entry
+import           Factom.Rest.Client.Types.User
 import           Factom.Rest.Client.Utils
 
 --------------------------------------------------------------------------------
@@ -52,11 +54,17 @@ type FactomAPIMinimal =
 
   :<|> "chains"
     :> Header "Authorization Bearer" T.Text
+    :> QueryParam "start" Int
+    :> QueryParam "limit" Int
+    :> QueryParam "status" T.Text
+    :> QueryParam "sort" T.Text
     :> Get '[JSON] (Either String [Chain])
 
   :<|> "chains"
     :> Header "Authorization Bearer" T.Text
-    :> Post '[JSON] (Either String [Chain])
+    :> QueryParam "callback_url" T.Text
+    :> ReqBody '[JSON] [(T.Text, T.Text)]
+    :> Post '[JSON] (Either String Chain)
 
   :<|> "chains"
     :> Header "Authorization Bearer" T.Text
@@ -67,43 +75,49 @@ type FactomAPIMinimal =
     :> Header "Authorization Bearer" T.Text
     :> Capture "chainid" T.Text
     :> "entries"
+    :> QueryParam "start" Int
+    :> QueryParam "limit" Int
+    :> QueryParam "status" T.Text
+    :> QueryParam "sort" T.Text
     :> Post '[JSON] (Either String [Entry])
 
-  :<|> "chains"
-    :> Header "Authorization Bearer" T.Text
-    :> Capture "chainid" T.Text
-    :> "entries"
-    :> Get '[JSON] (Either String [Entry])
+  -- :<|> "chains"
+  --   :> Header "Authorization Bearer" T.Text
+  --   :> Capture "chainid" T.Text
+  --   :> "entries"
+  --   :> Get '[JSON] (Either String [Entry])
 
   :<|> "chains"
     :> Header "Authorization Bearer" T.Text
     :> Capture "chainid" T.Text
     :> "entries"
     :> "first"
-    :> Get '[JSON] (Either String  Entry)
+    :> Get '[JSON] (Either String Entry)
 
-  :<|> "chains"
-    :> Header "Authorization Bearer" T.Text
-    :> Capture "chainid" T.Text
-    :> "entries"
-    :> "last"
-    :> Get '[JSON] (Either String  Entry)
+  -- :<|> "chains"
+  --   :> Header "Authorization Bearer" T.Text
+  --   :> Capture "chainid" T.Text
+  --   :> "entries"
+  --   :> "last"
+  --   :> Get '[JSON] (Either String  Entry)
 
-  :<|> "chains"
-    :> Header "Authorization Bearer" T.Text
-    :> "search"
-    :> Post '[JSON] (Either String Chain)
+  -- :<|> "chains"
+  --   :> Header "Authorization Bearer" T.Text
+  --   :> "search"
 
-  :<|> "chains"
-    :> Header "Authorization Bearer" T.Text
-    :> Capture "chainid" T.Text
-    :> "entries"
-    :> "searh"
-    :> Post '[JSON] (Either String Chain)
+  --   :> Post '[JSON] (Either String Chain)
+
+  -- :<|> "chains"
+  --   :> Header "Authorization Bearer" T.Text
+  --   :> Capture "chainid" T.Text
+  --   :> "entries"
+  --   :> "search"
+  --   :> ReqBody '[JSON] [T.Text]
+  --   :> Post '[JSON] (Either String Chain)
 
 
-factomAPI :: Proxy FactomAPIMinimal
-factomAPI = Proxy
+factomAPIMinimal :: Proxy FactomAPIMinimal
+factomAPIMinimal = Proxy
 
 --------------------------------------------------------------------------------
 -- Extended API
@@ -128,51 +142,117 @@ type FactomAPIExtended =
     :> Capture "to"   Int
     :> Get '[JSON] (Either String [Chain])
 
-factomExtendedAPI :: Proxy MonobankCorporateAPI
+factomExtendedAPI :: Proxy FactomAPIExtended
 factomExtendedAPI = Proxy
 
-getEntriesRange :: Maybe T.Text -> T.Text -> Int -> Int -> ClientM (Either String  [Chain])
+getEntriesRange :: Maybe T.Text -> T.Text -> Int -> Int -> ClientM (Either String  [Entry])
 getChainsRange  :: Maybe T.Text -> Int -> Int -> ClientM (Either String  [Chain])
-(     getEntries
+(     getEntriesRange
  :<|> getChainsRange) = client factomExtendedAPI
 
 --------------------------------------------------------------------------------
 
 getUser :: Maybe T.Text -> ClientM User
-getChains :: Maybe T.Text -> ClientM (Either String  [Chain])
-createChain :: Maybe T.Text -> ClientM (Either String  Chain)
-getChainById :: Maybe T.Text -> ClientM (Either String  Chain)
-getChainEntries :: Maybe T.Text -> ClientM (Either String  Chain)
-getChainEntryFirst :: Maybe T.Text -> ClientM (Either String  Chain)
-getChainEntryLast :: Maybe T.Text -> ClientM (Either String  Chain)
-searchChainsByExternalIds :: Maybe T.Text -> ClientM (Either String  Chain)
-  searchEntriesChainByExternalIds
-(     getUser
- :<|> getUserChains
- :<|> createChain
- :<|> getChainById
- :<|> getChainEntries
- :<|> getChainEntryFirst
- :<|> getChainEntryLast
- :<|> searchChainsByExternalIds
- :<|> searchEntriesChainByExternalIds ) = client factomAPIMinimal
+getUserChains :: Maybe T.Text -> Maybe Int -> Maybe Int -> Maybe T.Text -> Maybe T.Text -> ClientM (Either String [Chain])
+createChain :: Maybe T.Text -> Maybe T.Text -> [(T.Text, T.Text)] -> ClientM (Either String Chain)
+getChainById :: Maybe T.Text -> T.Text -> ClientM (Either String Chain)
+getChainEntries :: Maybe T.Text -> T.Text -> Maybe Int -> Maybe Int -> Maybe T.Text -> Maybe T.Text -> ClientM (Either String  [Entry])
+getChainEntryFirst :: Maybe T.Text -> T.Text -> ClientM (Either String Entry)
+getChainEntryLast  :: Maybe T.Text -> T.Text -> ClientM (Either String Entry)
+-- searchChainsByExternalIds :: Maybe T.Text -> [T.Text] -> ClientM (Either String Chain)
+-- searchEntriesChainByExternalIds  :: Maybe T.Text -> [T.Text] -> ClientM (Either String Chain)
+(      getUser
+  :<|> getUserChains
+  :<|> createChain
+  :<|> getChainById
+  :<|> getChainEntries
+  :<|> getChainEntryFirst
+  :<|> getChainEntryLast
+ -- :<|> searchChainsByExternalIds
+ -- :<|> searchEntriesChainByExternalIds
+ ) = client factomAPIMinimal
 
 --------------------------------------------------------------------------------
 
-getUser' :: IO (Either ServantError User)
-getUser' = do
+getUser' :: Maybe T.Text
+         -> IO (Either ServantError User)
+getUser' token = do
   mgr <- newManager tlsManagerSettings
   let env = ClientEnv mgr host Nothing
-  runClientM getUser env
+  runClientM (getUser token) env         -- token: (Just "my-awesome-token")
   where
     host = (BaseUrl Https endpoint 443 "")
 
-getUserChains' = undefined
-createChain' = undefined
-getChainById' = undefined
-getChainEntries' = undefined
-getChainEntryFirst' = undefined
-getChainEntryLast' = undefined
+getUserChains' :: Maybe T.Text
+               -> Maybe Int
+               -> Maybe Int
+               -> Maybe T.Text
+               -> Maybe T.Text
+               -> IO (Either ServantError (Either String [Chain]))
+getUserChains' token start limit status sort = do
+  mgr <- newManager tlsManagerSettings
+  let env = ClientEnv mgr host Nothing
+  runClientM (getUserChains token start limit status sort) env
+  where
+    host = (BaseUrl Https endpoint 443 "")
+
+createChain' :: Maybe T.Text
+             -> Maybe T.Text
+             -> [(T.Text, T.Text)]
+             -> IO (Either ServantError (Either String Chain))
+createChain' token callback datas= do
+  mgr <- newManager tlsManagerSettings
+  let env = ClientEnv mgr host Nothing
+  -- datas = [] -- add something if needed to data
+  runClientM (createChain token callback datas ) env
+  where
+    host = (BaseUrl Https endpoint 443 "")
+
+getChainById' :: Maybe T.Text
+              -> T.Text
+              -> IO (Either ServantError (Either String Chain))
+getChainById' token chainid = do
+  mgr <- newManager tlsManagerSettings
+  let env = ClientEnv mgr host Nothing
+      datas = [] -- prepare needed data
+  runClientM (getChainById token chainid ) env
+  where
+    host = (BaseUrl Https endpoint 443 "")
+
+getChainEntries' :: Maybe T.Text
+                 -> T.Text
+                 -> Maybe Int
+                 -> Maybe Int
+                 -> Maybe T.Text
+                 -> Maybe T.Text
+                 -> IO (Either ServantError (Either String [Entry]))
+getChainEntries' token chainid start limit status sort = do
+  mgr <- newManager tlsManagerSettings
+  let env = ClientEnv mgr host Nothing
+  runClientM (getChainEntries token chainid start limit status sort) env
+  where
+    host = (BaseUrl Https endpoint 443 "")
+
+getChainEntryFirst' :: Maybe T.Text
+                    -> T.Text
+                    -> IO (Either ServantError (Either String Entry))
+getChainEntryFirst' token chainid = do
+  mgr <- newManager tlsManagerSettings
+  let env = ClientEnv mgr host Nothing
+  runClientM (getChainEntryFirst token chainid) env
+  where
+    host = (BaseUrl Https endpoint 443 "")
+
+getChainEntryLast' :: Maybe T.Text
+                    -> T.Text
+                    -> IO (Either ServantError (Either String Entry))
+getChainEntryLast' token chainid = do
+  mgr <- newManager tlsManagerSettings
+  let env = ClientEnv mgr host Nothing
+  runClientM (getChainEntryFirst token chainid) env
+  where
+    host = (BaseUrl Https endpoint 443 "")
+
 searchChainsByExternalIds' = undefined
 searchEntriesChainByExternalIds' = undefined
 
