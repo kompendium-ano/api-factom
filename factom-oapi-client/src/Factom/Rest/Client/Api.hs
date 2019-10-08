@@ -39,8 +39,8 @@ import           Factom.Rest.Client.Utils
 --------------------------------------------------------------------------------
 -- Configuration related
 
-endpoint = "http://localhost:8081/v1"
-endpointRemote = "https://api.factom.kelecorix.com"
+--endpoint = "http://localhost:8081/v1"
+--endpointRemote = "https://api.factom.kelecorix.com"
 
 --------------------------------------------------------------------------------
 -- Minimal API
@@ -94,12 +94,12 @@ type FactomAPIMinimal =
     :> "first"
     :> Get '[JSON] (Either String Entry)
 
-  -- :<|> "chains"
-  --   :> Header "Authorization Bearer" T.Text
-  --   :> Capture "chainid" T.Text
-  --   :> "entries"
-  --   :> "last"
-  --   :> Get '[JSON] (Either String  Entry)
+  :<|> "chains"
+    :> Header "Authorization Bearer" T.Text
+    :> Capture "chainid" T.Text
+    :> "entries"
+    :> "last"
+    :> Get '[JSON] (Either String Entry)
 
   -- :<|> "chains"
   --   :> Header "Authorization Bearer" T.Text
@@ -174,84 +174,91 @@ getChainEntryLast  :: Maybe T.Text -> T.Text -> ClientM (Either String Entry)
 
 --------------------------------------------------------------------------------
 
-getUser' :: Maybe T.Text
+getUser' :: T.Text
+         -> Maybe T.Text
          -> IO (Either ServantError User)
-getUser' token = do
+getUser' endpoint token = do
   mgr <- newManager tlsManagerSettings
   let env = ClientEnv mgr host Nothing
   runClientM (getUser token) env         -- token: (Just "my-awesome-token")
   where
-    host = (BaseUrl Https endpoint 443 "")
+    host = (BaseUrl Https (T.unpack endpoint) 443 "")
 
-getUserChains' :: Maybe T.Text
+getUserChains' :: T.Text
+               -> Maybe T.Text
                -> Maybe Int
                -> Maybe Int
                -> Maybe T.Text
                -> Maybe T.Text
                -> IO (Either ServantError (Either String [Chain]))
-getUserChains' token start limit status sort = do
+getUserChains' endpoint token start limit status sort = do
   mgr <- newManager tlsManagerSettings
   let env = ClientEnv mgr host Nothing
   runClientM (getUserChains token start limit status sort) env
   where
-    host = (BaseUrl Https endpoint 443 "")
+    host = (BaseUrl Https (T.unpack endpoint) 443 "")
 
-createChain' :: Maybe T.Text
+createChain' :: T.Text
+             -> Maybe T.Text
              -> Maybe T.Text
              -> [(T.Text, T.Text)]
              -> IO (Either ServantError (Either String Chain))
-createChain' token callback datas= do
+createChain' endpoint token callback datas= do
   mgr <- newManager tlsManagerSettings
   let env = ClientEnv mgr host Nothing
   -- datas = [] -- add something if needed to data
   runClientM (createChain token callback datas ) env
   where
-    host = (BaseUrl Https endpoint 443 "")
+    host = (BaseUrl Https (T.unpack endpoint) 443 "")
 
-getChainById' :: Maybe T.Text
+getChainById' :: T.Text
+              -> Maybe T.Text
               -> T.Text
               -> IO (Either ServantError (Either String Chain))
-getChainById' token chainid = do
+getChainById' endpoint token chainid = do
   mgr <- newManager tlsManagerSettings
   let env = ClientEnv mgr host Nothing
       datas = [] -- prepare needed data
   runClientM (getChainById token chainid ) env
   where
-    host = (BaseUrl Https endpoint 443 "")
+    host = (BaseUrl Https (T.unpack endpoint) 443 "")
 
-getChainEntries' :: Maybe T.Text
+getChainEntries' :: T.Text
+                 -> Maybe T.Text
                  -> T.Text
                  -> Maybe Int
                  -> Maybe Int
                  -> Maybe T.Text
                  -> Maybe T.Text
                  -> IO (Either ServantError (Either String [Entry]))
-getChainEntries' token chainid start limit status sort = do
+getChainEntries' endpoint token chainid start limit status sort = do
   mgr <- newManager tlsManagerSettings
   let env = ClientEnv mgr host Nothing
   runClientM (getChainEntries token chainid start limit status sort) env
   where
-    host = (BaseUrl Https endpoint 443 "")
+    host = (BaseUrl Https (T.unpack endpoint) 443 "")
 
-getChainEntryFirst' :: Maybe T.Text
+getChainEntryFirst' :: T.Text
+                    -> Maybe T.Text
                     -> T.Text
                     -> IO (Either ServantError (Either String Entry))
-getChainEntryFirst' token chainid = do
+getChainEntryFirst' endpoint token chainid = do
   mgr <- newManager tlsManagerSettings
   let env = ClientEnv mgr host Nothing
   runClientM (getChainEntryFirst token chainid) env
   where
-    host = (BaseUrl Https endpoint 443 "")
+    host = (BaseUrl Https (T.unpack endpoint) 443 "")
 
-getChainEntryLast' :: Maybe T.Text
-                    -> T.Text
-                    -> IO (Either ServantError (Either String Entry))
-getChainEntryLast' token chainid = do
+getChainEntryLast' :: T.Text
+                   -> Maybe T.Text
+                   -> T.Text
+                   -> IO (Either ServantError (Either String Entry))
+getChainEntryLast' endpoint token chainid = do
   mgr <- newManager tlsManagerSettings
   let env = ClientEnv mgr host Nothing
   runClientM (getChainEntryFirst token chainid) env
   where
-    host = (BaseUrl Https endpoint 443 "")
+    host = (BaseUrl Https (T.unpack endpoint) 443 "")
 
 searchChainsByExternalIds' = undefined
 searchEntriesChainByExternalIds' = undefined
