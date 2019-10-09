@@ -101,11 +101,15 @@ type FactomAPIMinimal =
     :> "last"
     :> Get '[JSON] (Either String Entry)
 
-  -- :<|> "chains"
-  --   :> Header "Authorization Bearer" T.Text
-  --   :> "search"
-
-  --   :> Post '[JSON] (Either String Chain)
+  :<|> "chains"
+    :> "search"
+    :> Header "Authorization Bearer" T.Text
+    :> QueryParam "start" Int
+    :> QueryParam "limit" Int
+    :> QueryParam "status" T.Text
+    :> QueryParam "sort" T.Text
+    :> ReqBody '[JSON] [T.Text]
+    :> Post '[JSON] (Either String [Chain])
 
   -- :<|> "chains"
   --   :> Header "Authorization Bearer" T.Text
@@ -113,7 +117,7 @@ type FactomAPIMinimal =
   --   :> "entries"
   --   :> "search"
   --   :> ReqBody '[JSON] [T.Text]
-  --   :> Post '[JSON] (Either String Chain)
+  --   :> Post '[JSON] (Either String [Entry])
 
 
 factomAPIMinimal :: Proxy FactomAPIMinimal
@@ -159,7 +163,7 @@ getChainById :: Maybe T.Text -> T.Text -> ClientM (Either String Chain)
 getChainEntries :: Maybe T.Text -> T.Text -> Maybe Int -> Maybe Int -> Maybe T.Text -> Maybe T.Text -> ClientM (Either String  [Entry])
 getChainEntryFirst :: Maybe T.Text -> T.Text -> ClientM (Either String Entry)
 getChainEntryLast  :: Maybe T.Text -> T.Text -> ClientM (Either String Entry)
--- searchChainsByExternalIds :: Maybe T.Text -> [T.Text] -> ClientM (Either String Chain)
+searchChainsByExternalIds :: Maybe T.Text -> Maybe Int -> Maybe Int -> Maybe T.Text -> Maybe T.Text -> [T.Text] -> ClientM (Either String [Chain])
 -- searchEntriesChainByExternalIds  :: Maybe T.Text -> [T.Text] -> ClientM (Either String Chain)
 (      getUser
   :<|> getUserChains
@@ -168,7 +172,7 @@ getChainEntryLast  :: Maybe T.Text -> T.Text -> ClientM (Either String Entry)
   :<|> getChainEntries
   :<|> getChainEntryFirst
   :<|> getChainEntryLast
- -- :<|> searchChainsByExternalIds
+  :<|> searchChainsByExternalIds
  -- :<|> searchEntriesChainByExternalIds
  ) = client factomAPIMinimal
 
@@ -260,8 +264,24 @@ getChainEntryLast' endpoint token chainid = do
   where
     host = (BaseUrl Https (T.unpack endpoint) 443 "")
 
-searchChainsByExternalIds' = undefined
+searchChainsByExternalIds' :: T.Text
+                           -> Maybe T.Text
+                           -> [T.Text]
+                           -> Maybe Int
+                           -> Maybe Int
+                           -> Maybe T.Text
+                           -> Maybe T.Text
+                           -> IO (Either ServantError (Either String [Chain]))
+searchChainsByExternalIds' endpoint token datas start limit status sort = do
+  mgr <- newManager tlsManagerSettings
+  let env = ClientEnv mgr host Nothing
+  runClientM (searchChainsByExternalIds token start limit status sort datas) env
+  where
+    host = (BaseUrl Https (T.unpack endpoint) 443 "")
+
 searchEntriesChainByExternalIds' = undefined
+
+--------------------------------------------------------------------------------
 
 getEntries' = undefined
 getChainsRange' = undefined
