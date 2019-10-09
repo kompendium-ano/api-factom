@@ -22,7 +22,9 @@ dependencies:
   - transformers
   - bytestring
   - containers
+  - json-alt
 library:
   source-dirs: src
   exposed-modules:
   - Factom.Rest.Client.Api
+  - Factom.Rest.Client.Types

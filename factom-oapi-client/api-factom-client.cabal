@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f41318fe388af261fb7d0b5b98f763b4d55d86b0d9e666f32b7481738f2ad1fe
+-- hash: 58e55ce54293c652809cb3b2b1cdf7060c92c4c4f81f2b11dcb5c7e663a4970a
 
 name:                api-factom-client
 version:             0.1.0.0
@@ -29,9 +29,12 @@ library
       src
   exposed-modules:
       Factom.Rest.Client.Api
+      Factom.Rest.Client.Types
   other-modules:
+      Factom.Rest.Client.Types.Chain
+      Factom.Rest.Client.Types.Entry
+      Factom.Rest.Client.Types.User
       Factom.Rest.Client.Utils
-      Factom.Rest.Types
       Paths_api_factom_client
   build-depends:
       aeson
@@ -41,6 +44,7 @@ library
     , http-client
     , http-client-tls
     , http-conduit
+    , json-alt
     , network
     , servant
     , servant-client
