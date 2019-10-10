@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass      #-}
 {-# LANGUAGE DeriveGeneric       #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE RecordWildCards     #-}
@@ -16,6 +17,7 @@ import           Data.Aeson.AutoType.Alternative
 import qualified Data.ByteString.Lazy.Char8      as BSL
 import           Data.Monoid
 import           Data.Text                       (Text)
+import           Elm                             (ElmType)
 import qualified GHC.Generics
 import           System.Environment              (getArgs)
 import           System.Exit                     (exitFailure, exitSuccess)
@@ -30,7 +32,7 @@ data User = User {
     userName        :: Text,
     userUsage       :: Double,
     userUsageLimit  :: Double
-  } deriving (Show,Eq,GHC.Generics.Generic)
+  } deriving (Show,Eq,GHC.Generics.Generic, ElmType)
 
 
 instance FromJSON User where

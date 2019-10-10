@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass      #-}
 {-# LANGUAGE DeriveGeneric       #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE RecordWildCards     #-}
@@ -16,6 +17,7 @@ import           Data.Aeson.AutoType.Alternative
 import qualified Data.ByteString.Lazy.Char8      as BSL
 import           Data.Monoid
 import           Data.Text                       (Text)
+import           Elm                             (ElmType)
 import qualified GHC.Generics
 import           System.Environment              (getArgs)
 import           System.Exit                     (exitFailure, exitSuccess)
@@ -30,7 +32,7 @@ o .:?? val = fmap join (o .:? val)
 data LinksElt = LinksElt {
     linksEltHref :: Text,
     linksEltRel  :: Text
-  } deriving (Show,Eq,GHC.Generics.Generic)
+  } deriving (Show,Eq,GHC.Generics.Generic, ElmType)
 
 
 instance FromJSON LinksElt where
@@ -45,19 +47,19 @@ instance ToJSON LinksElt where
     pairs ("href" .= linksEltHref <> "rel" .= linksEltRel)
 
 
-data Result = Result {
-    resultStatus    :: Text,
-    resultCreatedAt :: Text,
-    resultChainId   :: Text,
-    resultExtIds    :: [Text],
-    resultLinks     :: [LinksElt],
-    resultSynced    :: Bool
-  } deriving (Show,Eq,GHC.Generics.Generic)
+data ChainEntity = ChainEntity {
+    chainEntStatus    :: Text,
+    chainEntCreatedAt :: Text,
+    chainEntChainId   :: Text,
+    chainEntExtIds    :: [Text],
+    chainEntLinks     :: [LinksElt],
+    chainEntSynced    :: Bool
+  } deriving (Show,Eq,GHC.Generics.Generic, ElmType)
 
 
-instance FromJSON Result where
+instance FromJSON ChainEntity where
   parseJSON (Object v) =
-    Result
+    ChainEntity
       <$> v
       .:  "status"
       <*> v
@@ -73,41 +75,41 @@ instance FromJSON Result where
   parseJSON _ = mzero
 
 
-instance ToJSON Result where
-  toJSON (Result {..}) = object
-    [ "status" .= resultStatus
-    , "createdAt" .= resultCreatedAt
-    , "chainId" .= resultChainId
-    , "extIds" .= resultExtIds
-    , "links" .= resultLinks
-    , "synced" .= resultSynced
+instance ToJSON ChainEntity where
+  toJSON (ChainEntity {..}) = object
+    [ "status" .= chainEntStatus
+    , "createdAt" .= chainEntCreatedAt
+    , "chainId" .= chainEntChainId
+    , "extIds" .= chainEntExtIds
+    , "links" .= chainEntLinks
+    , "synced" .= chainEntSynced
     ]
-  toEncoding (Result {..}) = pairs
+  toEncoding (ChainEntity {..}) = pairs
     (  "status"
-    .= resultStatus
+    .= chainEntStatus
     <> "createdAt"
-    .= resultCreatedAt
+    .= chainEntCreatedAt
     <> "chainId"
-    .= resultChainId
+    .= chainEntChainId
     <> "extIds"
-    .= resultExtIds
+    .= chainEntExtIds
     <> "links"
-    .= resultLinks
+    .= chainEntLinks
     <> "synced"
-    .= resultSynced
+    .= chainEntSynced
     )
 
 
 data Chain = Chain {
-    topLevelResult :: Result
-  } deriving (Show,Eq,GHC.Generics.Generic)
+    chainChainEntity :: ChainEntity
+  } deriving (Show,Eq,GHC.Generics.Generic, ElmType)
 
 
 instance FromJSON Chain where
-  parseJSON (Object v) = Chain <$> v .: "result"
+  parseJSON (Object v) = Chain <$> v .: "chainEnt"
   parseJSON _          = mzero
 
 
 instance ToJSON Chain where
-  toJSON (Chain {..}) = object ["result" .= topLevelResult]
-  toEncoding (Chain {..}) = pairs ("result" .= topLevelResult)
+  toJSON (Chain {..}) = object ["chainEnt" .= chainChainEntity]
+  toEncoding (Chain {..}) = pairs ("chainEnt" .= chainChainEntity)
