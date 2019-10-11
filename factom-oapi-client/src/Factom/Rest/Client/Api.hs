@@ -21,6 +21,7 @@ import           Data.Proxy
 import qualified Data.Text                      as T
 import           Data.Time
 import           Data.Time.Clock.POSIX
+import           Elm
 import           GHC.Generics
 import           Network.HTTP.Client            (Manager, newManager)
 import qualified Network.HTTP.Client            as C
@@ -41,6 +42,11 @@ import           Factom.Rest.Client.Utils
 
 --endpoint = "http://localhost:8081/v1"
 --endpointRemote = "https://api.factom.kelecorix.com"
+
+instance ElmType (Either String [Chain])
+instance ElmType (Either String [Entry])
+instance ElmType (Either String Chain)
+instance ElmType (Either String Entry)
 
 --------------------------------------------------------------------------------
 -- Minimal API
