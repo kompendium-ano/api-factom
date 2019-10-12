@@ -9,11 +9,12 @@ Uses [OpenApi](https://docs.openapi.de-facto.pro/api-sdks) description from DeFa
 
 2. Use provided function wrappers to get response
 
-2.1 Import `Factom.Rest.Client.Api` module to your programm
+  2.1 Import `Factom.Rest.Client.Api` module to your programm
 
-2.2 Override endpoint `let endpoint = "https://my-awesome-url-to-open-api-serve"`
+  2.2 Override endpoint `let endpoint = "https://my-awesome-url-to-open-api-serve"`
 
-2.3 Use methods
+  2.3 Use methods
+
 ```haskell
 main :: IO ()
 main = do
@@ -30,7 +31,26 @@ main = do
 
   -- show the dadta
   putStrLn $ show $ entriesHashes
-
 ```
 
-3. All Response data is typed! It means that json responses are automatically
+3. All Response data is typed! It means that json responses are automatically converted to internal types.
+
+## Clients generation
+
+Ww support generation of several client libraries from Haskell specification. OpenAPi specification doesn't provide them by dedfault so we find them useful. Right now it's Elm and PureScript languages
+
+To generate Elm client, use provided application, not library (lives in `app` directory)
+
+```
+stack exec -- factom-oapi-app -ge
+```
+
+where `-ge` stands for `generate Elm`
+
+and
+
+```
+stack exec -- factom-oapi-app -gp
+```
+
+where `-gp` stands for `generate Purescript`

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 58e55ce54293c652809cb3b2b1cdf7060c92c4c4f81f2b11dcb5c7e663a4970a
+-- hash: dbbcfd98ba19b7ffe27388cbec66b501ac83772c55cc8415413bf6e5a28251df
 
 name:                api-factom-client
 version:             0.1.0.0
@@ -30,17 +30,18 @@ library
   exposed-modules:
       Factom.Rest.Client.Api
       Factom.Rest.Client.Types
-  other-modules:
+      Factom.Rest.Client.Utils
+      Factom.Rest.Client.Types.User
       Factom.Rest.Client.Types.Chain
       Factom.Rest.Client.Types.Entry
-      Factom.Rest.Client.Types.User
-      Factom.Rest.Client.Utils
+  other-modules:
       Paths_api_factom_client
   build-depends:
       aeson
     , base >=4.7 && <5
     , bytestring
     , containers
+    , elm-export
     , http-client
     , http-client-tls
     , http-conduit
@@ -48,6 +49,35 @@ library
     , network
     , servant
     , servant-client
+    , servant-elm
+    , text
+    , time
+    , transformers
+  default-language: Haskell2010
+
+executable factom-oapi-app
+  main-is: Main.hs
+  other-modules:
+      Paths_api_factom_client
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , api-factom-client
+    , base
+    , bytestring
+    , containers
+    , elm-export
+    , http-client
+    , http-client-tls
+    , http-conduit
+    , json-alt
+    , network
+    , servant
+    , servant-client
+    , servant-elm
+    , stm
     , text
     , time
     , transformers
