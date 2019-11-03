@@ -1,4 +1,6 @@
 # OPEN API functionality for Factom blockchain
+[![Build Status](https://travis-ci.com/kompendium-llc/api-factom.svg?branch=master)](https://travis-ci.com/kompendium-llc/api-factom)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/kompendium-llc/api-factom/blob/master/LICENSE)
 
 Uses [OpenApi](https://docs.openapi.de-facto.pro/api-sdks) description from De Facto as basis for connecting to Factom blockchain. This repository contains a collection of utilities needed to work with Open API
 
@@ -14,3 +16,8 @@ Uses [OpenApi](https://docs.openapi.de-facto.pro/api-sdks) description from De F
 - We use Haskell because of brilliant type system that provide additional test layer by reducing specific classes of bugs that typial for other language. Type inference allows to detect incoherences at early stages and functional programming approaches gives ability to work easily with null-values and conditional responses..
 
 - As an RPC connector system uses Haskell RPC client - [api-rpc-factom](https://github.com/kompendium-llc/api-rpc-factom) which also uses types for additional correctness.
+
+
+Uses [OpenApi](https://docs.openapi.de-facto.pro/api-sdks) description from DeFacto for connecting to Factom blockchain in a more easier way.
+
+Additionally Provides Swagger client generation for Elm and Purescript.
