@@ -1,29 +1,31 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# OPTIONS_GHC -fno-warn-unused-binds -fno-warn-unused-imports #-}
 
-module FactomOpen.Types (
-  ApiErrorResponse (..),
-  ApiSuccessResponse (..),
-  ApiSuccessResponsePagination (..),
+module Factom.Rest.Types
+  ( ApiErrorResponse (..)
+  , ApiSuccessResponse (..)
+  , ApiSuccessResponsePagination (..)
   ) where
 
-import Data.List (stripPrefix)
-import Data.Maybe (fromMaybe)
-import Data.Aeson (Value, FromJSON(..), ToJSON(..), genericToJSON, genericParseJSON)
-import Data.Aeson.Types (Options(..), defaultOptions)
-import Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Map as Map
-import GHC.Generics (Generic)
-import Data.Function ((&))
+import           Data.Aeson       (FromJSON (..), ToJSON (..), Value,
+                                   genericParseJSON, genericToJSON)
+import           Data.Aeson.Types (Options (..), defaultOptions)
+import           Data.Function    ((&))
+import           Data.List        (stripPrefix)
+import qualified Data.Map         as Map
+import           Data.Maybe       (fromMaybe)
+import           Data.Text        (Text)
+import qualified Data.Text        as T
+import           GHC.Generics     (Generic)
 
+--------------------------------------------------------------------------------
 
--- | 
+-- |
 data ApiErrorResponse = ApiErrorResponse
-  { apiErrorResponseCode :: Int -- ^ 
-  , apiErrorResponseError :: Text -- ^ 
-  , apiErrorResponseResult :: Bool -- ^ 
+  { apiErrorResponseCode   :: Int  -- ^
+  , apiErrorResponseError  :: Text -- ^
+  , apiErrorResponseResult :: Bool -- ^
   } deriving (Show, Eq, Generic)
 
 instance FromJSON ApiErrorResponse where
@@ -31,9 +33,9 @@ instance FromJSON ApiErrorResponse where
 instance ToJSON ApiErrorResponse where
   toJSON = genericToJSON (removeFieldLabelPrefix False "apiErrorResponse")
 
--- | 
+-- |
 data ApiSuccessResponse = ApiSuccessResponse
-  { apiSuccessResponseResult :: Value -- ^ 
+  { apiSuccessResponseResult :: Value -- ^
   } deriving (Show, Eq, Generic)
 
 instance FromJSON ApiSuccessResponse where
@@ -41,12 +43,12 @@ instance FromJSON ApiSuccessResponse where
 instance ToJSON ApiSuccessResponse where
   toJSON = genericToJSON (removeFieldLabelPrefix False "apiSuccessResponse")
 
--- | 
+-- |
 data ApiSuccessResponsePagination = ApiSuccessResponsePagination
-  { apiSuccessResponsePaginationLimit :: Int -- ^ 
-  , apiSuccessResponsePaginationResult :: Value -- ^ 
-  , apiSuccessResponsePaginationStart :: Int -- ^ 
-  , apiSuccessResponsePaginationTotal :: Int -- ^ 
+  { apiSuccessResponsePaginationLimit  :: Int -- ^
+  , apiSuccessResponsePaginationResult :: Value -- ^
+  , apiSuccessResponsePaginationStart  :: Int -- ^
+  , apiSuccessResponsePaginationTotal  :: Int -- ^
   } deriving (Show, Eq, Generic)
 
 instance FromJSON ApiSuccessResponsePagination where

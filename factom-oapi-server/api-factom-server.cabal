@@ -1,0 +1,57 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 8c735cbc18fc23a947ba87f50f6b53cdc7213dbc1d0b898256a3d397b1f8ef52
+
+name:           api-factom-server
+version:        0.1.0.0
+category:       Web
+homepage:       https://github.com/sigrlami/api-factom#readme
+bug-reports:    https://github.com/sigrlami/api-factom/issues
+author:         Sergey Bushnyak
+maintainer:     sergey.bushnyak@sigrlami.eu
+copyright:      Copyright: (c) 2019 Sergey Bushnyak
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/sigrlami/api-factom
+
+library
+  exposed-modules:
+      Factom.Rest.Server.API
+  other-modules:
+      Paths_api_factom_server
+  hs-source-dirs:
+      src
+  build-depends:
+      aeson
+    , api-factom-types
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , http-api-data
+    , http-client
+    , http-client-tls
+    , http-conduit
+    , http-types
+    , mtl
+    , network
+    , servant
+    , servant-client
+    , servant-server
+    , servant-swagger
+    , text
+    , time
+    , transformers
+    , wai
+    , wai-extra
+    , warp
+  default-language: Haskell2010

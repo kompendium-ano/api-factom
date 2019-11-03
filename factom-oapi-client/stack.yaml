@@ -1,0 +1,8 @@
+resolver: lts-14.4
+
+packages:
+- .
+
+extra-deps:
+- git: 'git@github.com:kompendium-llc/api-rpc-factom'
+  commit: 'd5cb7930ccefea5717bb13e9834c4af6a24f7be8'

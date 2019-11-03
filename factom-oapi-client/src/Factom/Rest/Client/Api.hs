@@ -8,7 +8,7 @@
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
 
-module Factom.Rest.Api where
+module Factom.Rest.Client.Api where
 
 import           Control.Applicative
 import           Control.Monad
@@ -30,8 +30,8 @@ import qualified Network.HTTP.Simple        as S
 import           Servant.API
 import           Servant.Client
 
+import           Factom.Rest.Client.Utils
 import           Factom.Rest.Types
-import           Factom.Rest.Utils
 
 --------------------------------------------------------------------------------
 
