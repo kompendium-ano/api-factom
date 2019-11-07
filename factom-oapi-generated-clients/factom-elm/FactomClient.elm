@@ -8,135 +8,61 @@ import String
 
 
 type alias User =
-    { uName : String
-    , uAccounts : List (Account)
+    { userAccessToken : String
+    , userName : String
+    , userUsage : Float
+    , userUsageLimit : Float
     }
 
-type alias Currency =
-    { isoCode : String
-    , isoNumericCode : Int
-    , decimalDigits : Int
-    , symbol : String
-    , name : String
+type alias Entry =
+    { entryStatus : String
+    , entryCreatedAt : String
+    , entryChainId : String
+    , entryEntryHash : String
+    , entryContent : String
+    , entryExtIds : List (String)
     }
 
-type alias Account =
-    { acId : String
-    , acBalance : Int
-    , acCreditLimit : Int
-    , acCurrencyCode : Int
-    , acCashbackType : String
+type alias Chain =
+    { chainChainEntity : ChainEntity
     }
-
-type alias Statement =
-    { stId : String
-    , stTime : String
-    , stDescription : String
-    , stMCC : String
-    , stHold : Bool
-    , stAmount : Int
-    , stOperationAmount : Int
-    , stCurrency : Int
-    , stComissionRate : Int
-    , stCashbackAmount : Int
-    , balance : Int
-    }
-
-type alias CurrencyPair =
-    { cpCurrencyCodeA : Currency
-    , cpCurrencyCodeB : Currency
-    , cpDate : Int
-    , cpRateSell : Maybe (Float)
-    , cpRateBuy : Maybe (Float)
-    , cpRateCross : Maybe (Float)
-    }
-
-decodeCurrency : Decoder Currency
-decodeCurrency =
-    decode Currency
-        |> required "isoCode" string
-        |> required "isoNumericCode" int
-        |> required "decimalDigits" int
-        |> required "symbol" string
-        |> required "name" string
 
 decodeUser : Decoder User
 decodeUser =
     decode User
-        |> required "name" string
-        |> required "accounts" (list decodeAccount)
+        |> required "userAccessToken" string
+        |> required "userName" string
+        |> required "userUsage" float
+        |> required "userUsageLimit" float
 
-decodeAccount : Decoder Account
-decodeAccount =
-    decode Account
-        |> required "id" string
-        |> required "balance" int
-        |> required "creditLimit" int
-        |> required "currencyCode" int
-        |> required "cashbackType" string
+decodeChain : Decoder Chain
+decodeChain =
+    decode Chain
+        |> required "chainChainEntity" decodeChainEntity
 
-decodeStatement : Decoder Statement
-decodeStatement =
-    decode Statement
-        |> required "id" string
-        |> required "time" string
-        |> required "description" string
-        |> required "mCC" string
-        |> required "hold" bool
-        |> required "amount" int
-        |> required "operationAmount" int
-        |> required "currency" int
-        |> required "comissionRate" int
-        |> required "cashbackAmount" int
-        |> required "balance" int
+decodeEntry : Decoder Entry
+decodeEntry =
+    decode Entry
+        |> required "entryStatus" string
+        |> required "entryCreatedAt" string
+        |> required "entryChainId" string
+        |> required "entryEntryHash" string
+        |> required "entryContent" string
+        |> required "entryExtIds" (list string)
 
-decodeCurrencyPair : Decoder CurrencyPair
-decodeCurrencyPair =
-    decode CurrencyPair
-        |> required "currencyCodeA" decodeCurrency
-        |> required "currencyCodeB" decodeCurrency
-        |> required "date" int
-        |> required "rateSell" (maybe float)
-        |> required "rateBuy" (maybe float)
-        |> required "rateCross" (maybe float)
-
-getBankCurrency : Http.Request (List (CurrencyPair))
-getBankCurrency =
-    Http.request
-        { method =
-            "GET"
-        , headers =
-            []
-        , url =
-            String.join "/"
-                [ ""
-                , "bank"
-                , "currency"
-                ]
-        , body =
-            Http.emptyBody
-        , expect =
-            Http.expectJson (list decodeCurrencyPair)
-        , timeout =
-            Nothing
-        , withCredentials =
-            False
-        }
-
-getPersonalClientinfo : Maybe (String) -> Http.Request (User)
-getPersonalClientinfo header_X_Token =
+getUser : Maybe (String) -> Http.Request (User)
+getUser header_Authorization Bearer =
     Http.request
         { method =
             "GET"
         , headers =
             List.filterMap identity
-                [ Maybe.map (Http.header "X-Token") header_X_Token
+                [ Maybe.map (Http.header "Authorization Bearer") header_Authorization Bearer
                 ]
         , url =
             String.join "/"
                 [ ""
-                , "personal"
-                , "client-info"
+                , "user"
                 ]
         , body =
             Http.emptyBody
@@ -148,30 +74,303 @@ getPersonalClientinfo header_X_Token =
             False
         }
 
-getPersonalStatementByAccountByFromByTo : Maybe (String) -> String -> String -> String -> Http.Request (Statement)
-getPersonalStatementByAccountByFromByTo header_X_Token capture_account capture_from capture_to =
+getChains : Maybe (String) -> Maybe (Int) -> Maybe (Int) -> Maybe (String) -> Maybe (String) -> Http.Request (Either)
+getChains header_Authorization Bearer query_start query_limit query_status query_sort =
+    let
+        params =
+            List.filter (not << String.isEmpty)
+                [ query_start
+                    |> Maybe.map (toString >> Http.encodeUri >> (++) "start=")
+                    |> Maybe.withDefault ""
+                , query_limit
+                    |> Maybe.map (toString >> Http.encodeUri >> (++) "limit=")
+                    |> Maybe.withDefault ""
+                , query_status
+                    |> Maybe.map (Http.encodeUri >> (++) "status=")
+                    |> Maybe.withDefault ""
+                , query_sort
+                    |> Maybe.map (Http.encodeUri >> (++) "sort=")
+                    |> Maybe.withDefault ""
+                ]
+    in
+        Http.request
+            { method =
+                "GET"
+            , headers =
+                List.filterMap identity
+                    [ Maybe.map (Http.header "Authorization Bearer") header_Authorization Bearer
+                    ]
+            , url =
+                String.join "/"
+                    [ ""
+                    , "chains"
+                    ]
+                ++ if List.isEmpty params then
+                       ""
+                   else
+                       "?" ++ String.join "&" params
+            , body =
+                Http.emptyBody
+            , expect =
+                Http.expectJson decodeEither
+            , timeout =
+                Nothing
+            , withCredentials =
+                False
+            }
+
+postChains : Maybe (String) -> Maybe (String) -> List ((String, String)) -> Http.Request (Either)
+postChains header_Authorization Bearer query_callback_url body =
+    let
+        params =
+            List.filter (not << String.isEmpty)
+                [ query_callback_url
+                    |> Maybe.map (Http.encodeUri >> (++) "callback_url=")
+                    |> Maybe.withDefault ""
+                ]
+    in
+        Http.request
+            { method =
+                "POST"
+            , headers =
+                List.filterMap identity
+                    [ Maybe.map (Http.header "Authorization Bearer") header_Authorization Bearer
+                    ]
+            , url =
+                String.join "/"
+                    [ ""
+                    , "chains"
+                    ]
+                ++ if List.isEmpty params then
+                       ""
+                   else
+                       "?" ++ String.join "&" params
+            , body =
+                Http.jsonBody ((Json.Encode.list << List.map (tuple2 Json.Encode.string Json.Encode.string)) body)
+            , expect =
+                Http.expectJson decodeEither
+            , timeout =
+                Nothing
+            , withCredentials =
+                False
+            }
+
+postChainsByChainid : Maybe (String) -> String -> Http.Request (Either)
+postChainsByChainid header_Authorization Bearer capture_chainid =
     Http.request
         { method =
-            "GET"
+            "POST"
         , headers =
             List.filterMap identity
-                [ Maybe.map (Http.header "X-Token") header_X_Token
+                [ Maybe.map (Http.header "Authorization Bearer") header_Authorization Bearer
                 ]
         , url =
             String.join "/"
                 [ ""
-                , "personal"
-                , "statement"
-                , capture_account |> Http.encodeUri
-                , capture_from |> Http.encodeUri
-                , capture_to |> Http.encodeUri
+                , "chains"
+                , capture_chainid |> Http.encodeUri
                 ]
         , body =
             Http.emptyBody
         , expect =
-            Http.expectJson decodeStatement
+            Http.expectJson decodeEither
         , timeout =
             Nothing
         , withCredentials =
             False
         }
+
+postChainsByChainidEntries : Maybe (String) -> String -> Maybe (Int) -> Maybe (Int) -> Maybe (String) -> Maybe (String) -> Http.Request (Either)
+postChainsByChainidEntries header_Authorization Bearer capture_chainid query_start query_limit query_status query_sort =
+    let
+        params =
+            List.filter (not << String.isEmpty)
+                [ query_start
+                    |> Maybe.map (toString >> Http.encodeUri >> (++) "start=")
+                    |> Maybe.withDefault ""
+                , query_limit
+                    |> Maybe.map (toString >> Http.encodeUri >> (++) "limit=")
+                    |> Maybe.withDefault ""
+                , query_status
+                    |> Maybe.map (Http.encodeUri >> (++) "status=")
+                    |> Maybe.withDefault ""
+                , query_sort
+                    |> Maybe.map (Http.encodeUri >> (++) "sort=")
+                    |> Maybe.withDefault ""
+                ]
+    in
+        Http.request
+            { method =
+                "POST"
+            , headers =
+                List.filterMap identity
+                    [ Maybe.map (Http.header "Authorization Bearer") header_Authorization Bearer
+                    ]
+            , url =
+                String.join "/"
+                    [ ""
+                    , "chains"
+                    , capture_chainid |> Http.encodeUri
+                    , "entries"
+                    ]
+                ++ if List.isEmpty params then
+                       ""
+                   else
+                       "?" ++ String.join "&" params
+            , body =
+                Http.emptyBody
+            , expect =
+                Http.expectJson decodeEither
+            , timeout =
+                Nothing
+            , withCredentials =
+                False
+            }
+
+getChainsByChainidEntriesFirst : Maybe (String) -> String -> Http.Request (Either)
+getChainsByChainidEntriesFirst header_Authorization Bearer capture_chainid =
+    Http.request
+        { method =
+            "GET"
+        , headers =
+            List.filterMap identity
+                [ Maybe.map (Http.header "Authorization Bearer") header_Authorization Bearer
+                ]
+        , url =
+            String.join "/"
+                [ ""
+                , "chains"
+                , capture_chainid |> Http.encodeUri
+                , "entries"
+                , "first"
+                ]
+        , body =
+            Http.emptyBody
+        , expect =
+            Http.expectJson decodeEither
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+getChainsByChainidEntriesLast : Maybe (String) -> String -> Http.Request (Either)
+getChainsByChainidEntriesLast header_Authorization Bearer capture_chainid =
+    Http.request
+        { method =
+            "GET"
+        , headers =
+            List.filterMap identity
+                [ Maybe.map (Http.header "Authorization Bearer") header_Authorization Bearer
+                ]
+        , url =
+            String.join "/"
+                [ ""
+                , "chains"
+                , capture_chainid |> Http.encodeUri
+                , "entries"
+                , "last"
+                ]
+        , body =
+            Http.emptyBody
+        , expect =
+            Http.expectJson decodeEither
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+postChainsSearch : Maybe (String) -> Maybe (Int) -> Maybe (Int) -> Maybe (String) -> Maybe (String) -> List (String) -> Http.Request (Either)
+postChainsSearch header_Authorization Bearer query_start query_limit query_status query_sort body =
+    let
+        params =
+            List.filter (not << String.isEmpty)
+                [ query_start
+                    |> Maybe.map (toString >> Http.encodeUri >> (++) "start=")
+                    |> Maybe.withDefault ""
+                , query_limit
+                    |> Maybe.map (toString >> Http.encodeUri >> (++) "limit=")
+                    |> Maybe.withDefault ""
+                , query_status
+                    |> Maybe.map (Http.encodeUri >> (++) "status=")
+                    |> Maybe.withDefault ""
+                , query_sort
+                    |> Maybe.map (Http.encodeUri >> (++) "sort=")
+                    |> Maybe.withDefault ""
+                ]
+    in
+        Http.request
+            { method =
+                "POST"
+            , headers =
+                List.filterMap identity
+                    [ Maybe.map (Http.header "Authorization Bearer") header_Authorization Bearer
+                    ]
+            , url =
+                String.join "/"
+                    [ ""
+                    , "chains"
+                    , "search"
+                    ]
+                ++ if List.isEmpty params then
+                       ""
+                   else
+                       "?" ++ String.join "&" params
+            , body =
+                Http.jsonBody ((Json.Encode.list << List.map Json.Encode.string) body)
+            , expect =
+                Http.expectJson decodeEither
+            , timeout =
+                Nothing
+            , withCredentials =
+                False
+            }
+
+postChainsByChainidEntriesSearch : Maybe (String) -> String -> Maybe (Int) -> Maybe (Int) -> Maybe (String) -> Maybe (String) -> List (String) -> Http.Request (Either)
+postChainsByChainidEntriesSearch header_Authorization Bearer capture_chainid query_start query_limit query_status query_sort body =
+    let
+        params =
+            List.filter (not << String.isEmpty)
+                [ query_start
+                    |> Maybe.map (toString >> Http.encodeUri >> (++) "start=")
+                    |> Maybe.withDefault ""
+                , query_limit
+                    |> Maybe.map (toString >> Http.encodeUri >> (++) "limit=")
+                    |> Maybe.withDefault ""
+                , query_status
+                    |> Maybe.map (Http.encodeUri >> (++) "status=")
+                    |> Maybe.withDefault ""
+                , query_sort
+                    |> Maybe.map (Http.encodeUri >> (++) "sort=")
+                    |> Maybe.withDefault ""
+                ]
+    in
+        Http.request
+            { method =
+                "POST"
+            , headers =
+                List.filterMap identity
+                    [ Maybe.map (Http.header "Authorization Bearer") header_Authorization Bearer
+                    ]
+            , url =
+                String.join "/"
+                    [ ""
+                    , "chains"
+                    , capture_chainid |> Http.encodeUri
+                    , "entries"
+                    , "search"
+                    ]
+                ++ if List.isEmpty params then
+                       ""
+                   else
+                       "?" ++ String.join "&" params
+            , body =
+                Http.jsonBody ((Json.Encode.list << List.map Json.Encode.string) body)
+            , expect =
+                Http.expectJson decodeEither
+            , timeout =
+                Nothing
+            , withCredentials =
+                False
+            }

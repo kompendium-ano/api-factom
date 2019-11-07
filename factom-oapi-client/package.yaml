@@ -16,6 +16,7 @@ dependencies:
   - http-conduit
   - servant
   - servant-client
+  - servant-elm
   - http-client
   - http-client-tls
   - network
@@ -23,8 +24,33 @@ dependencies:
   - bytestring
   - containers
   - json-alt
+  - elm-export
+
 library:
   source-dirs: src
   exposed-modules:
   - Factom.Rest.Client.Api
   - Factom.Rest.Client.Types
+  - Factom.Rest.Client.Utils
+  - Factom.Rest.Client.Types.User
+  - Factom.Rest.Client.Types.Chain
+  - Factom.Rest.Client.Types.Entry
+executables:
+  factom-oapi-app:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - http-conduit
+    - http-client
+    - aeson
+    - stm
+    - text
+    - time
+    - api-factom-client
+    - servant-elm
+    - elm-export
