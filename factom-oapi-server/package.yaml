@@ -4,7 +4,7 @@ category: Web
 author: Sergey Bushnyak
 maintainer: sergey.bushnyak@sigrlami.eu
 copyright: ! 'Copyright: (c) 2019 Sergey Bushnyak'
-license: BSD3
+license: MIT
 github: sigrlami/api-factom
 extra-source-files:
 - README.md
@@ -16,10 +16,25 @@ dependencies:
   - http-conduit
   - servant
   - servant-server
-  - servant-client
+  - servant-auth
+  - servant-auth-server
+  - servant-auth-swagger
+  - servant-options
   - servant-swagger
-  - http-client
+  - servant-multipart
+  - swagger2
+  - servant-multipart
+  - io-streams
+  - optparse-applicative
+  - http-conduit
+  - postgresql-simple
+  - safe
+  - jose-jwt
+  - cryptonite
   - mtl
+  - yaml
+  - split
+  - uuid
   - wai
   - wai-extra
   - http-types
@@ -30,8 +45,11 @@ dependencies:
   - bytestring
   - containers
   - warp
+  - json-alt
+  #- api-rpc-factom
   - api-factom-types
 library:
   source-dirs: src
   exposed-modules:
-  - Factom.Rest.Server.API
+  - Factom.Rest.Server.Main
+  - Factom.Rest.Server.Api

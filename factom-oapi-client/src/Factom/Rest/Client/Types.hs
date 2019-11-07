@@ -3,7 +3,7 @@
 {-# OPTIONS_GHC -fno-warn-unused-binds   #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
 
-module Factom.Rest.Types where
+module Factom.Rest.Client.Types where
 
 import           Data.Aeson       (FromJSON (..), ToJSON (..), Value,
                                    genericParseJSON, genericToJSON)
@@ -95,3 +95,5 @@ removeFieldLabelPrefix forParsing prefix =
       if forParsing
         then flip T.replace
         else T.replace
+
+--------------------------------------
